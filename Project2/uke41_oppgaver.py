@@ -39,15 +39,15 @@ print(beta_linreg)
 beta = np.random.randn(3,1)
 
 #eta og gamma er begge navn på "learning raten"
-eta = 0.5/np.max(EigValues) #denne må være mindre enn 2/(den støsrte egenverdien til H) for å kunne konvergere
+eta = 0.5/np.max(EigValues) #denne må være mindre enn 2/(den største egenverdien til H) for å kunne konvergere
 gamma = 0.01 #parameter til GDM
 beta_prev = np.copy(beta) #til GDM
-delta = 1e-8 #adagrad-parameter (for stabilitet) brukes også i RMSprop
+delta = 1e-8 #adagrad-parameter (for stabilitet) brukes også i RMSprop og ADAM
 rho = 0.5 #parameter til RMSprop
 rho1, rho2 = 0.9, 0.99 #parametere til ADAM
 
-Niterations = 5000
-conv=10**(-5)
+Niterations = 1000
+conv=10**(-5) #konvergenskriterium
 M = 10 # størrelsen på hver minibatch
 m = int(n/M) #antall minibatcher
 n_epochs = int(Niterations/m) #antall ganger vi løper gjennom minibatchene 
@@ -102,10 +102,10 @@ if STG:
                 yi = y[random_index:random_index+M] #henter ut tilsvarende y-verdi
                 eta = learning_schedule(i)
                 #diff = siv.GD_vanlig(beta,xi,yi,eta,n)
-                diff, beta_prev = siv.GDM(beta,xi,yi,eta,gamma,beta_prev,n)
-                #diff = siv.adaGrad(beta,xi,yi,eta,delta,Giter,n)
+                #diff, beta_prev = siv.GDM(beta,xi,yi,eta,gamma,beta_prev,n)
+                #diff = siv.Adagrad(beta,xi,yi,eta,delta,Giter,n)
                 #diff = siv.RMSprop(beta,xi,yi,eta,delta,rho,Giter,n)
-                #diff = siv.ADAM(beta,xi,yi,eta,delta,rho1, rho2,first_moment,second_moment, Giter,epoch+1,n)
+                diff = siv.ADAM(beta,xi,yi,eta,delta,rho1, rho2,first_moment,second_moment, Giter,epoch+1,n)
                 beta += diff
                 
                 i=i+1
@@ -117,18 +117,17 @@ if STG:
 else: #helt vanlig gradient descent
     while (i < Niterations and diff_length > conv): #sjekker konvergens
         Giter = 0.0 #brukes i adagrad
-        first_moment = 0.0
-        second_moment = 0.0
+        first_moment = 0.0 #brukes i ADAM
+        second_moment = 0.0 #brukes i ADAM
         
         #plot latest value of beta
         ax1.scatter(i,beta[0], label = '_none')
         ax2.scatter(i,beta[1], label = '_none')
         ax3.scatter(i,beta[2], label = '_none') 
         
-        eta = learning_schedule(i)
-        #diff = siv.GD_vanlig(beta,X,y,eta,n)
-        diff, beta_prev = siv.GDM(beta,X,y,eta,gamma,beta_prev,n)
-        #diff = siv.adaGrad(beta,X,y,eta,delta,Giter,n)
+        diff = siv.GD_vanlig(beta,X,y,eta,n)
+        #diff, beta_prev = siv.GDM(beta,X,y,eta,gamma,beta_prev,n)
+        #diff = siv.Adagrad(beta,X,y,eta,delta,Giter,n)
         #diff = siv.RMSprop(beta,X,y,eta,delta,rho,Giter,n)
         #diff = siv.ADAM(beta,X,y,eta,delta,rho1, rho2,first_moment,second_moment, Giter,epoch+1,n)
         beta += diff

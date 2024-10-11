@@ -25,7 +25,7 @@ def GDM(beta,x,y,eta,gamma,beta_prev,n):
     beta_prev = np.copy(beta) #tar vare på den forrige verdien
     return diff, beta_prev
 
-def adaGrad(beta,x,y,eta,delta,Giter,n):
+def Adagrad(beta,x,y,eta,delta,Giter,n):
     gradient = (2.0/n)*x.T @ (x @ beta-y)
     Giter += gradient*gradient
     diff = -gradient*eta/(np.sqrt(Giter)+delta)
