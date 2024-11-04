@@ -21,9 +21,6 @@ def backpropagation_batch(
 ):
     #finner alle a-er og z-er basert på startgjettene for W og b
     layer_inputs, zs, predict = sivNN.feed_forward_saver_batch(input, layers, activation_funcs)
-    #print('np.shape(predict):')
-    #print(np.shape(predict))
-    #print(predict)
 
     layer_grads = [() for layer in layers] #lager en liste med tupler til å holde dC/dW og dC/db, håper jeg
 
@@ -39,28 +36,16 @@ def backpropagation_batch(
         else:
             # For other layers we build on previous z derivative, as dC_da(i) = dC_dz(i+1) * dz(i+1)_da(i)
             (W, b) = layers[i + 1] #henter ut fra laget over
-            #Her er det en W, kanskje vi må snu den matrisemultiplikasjonen, da? 
-            dC_da = dC_dz @ W.T #tips fra Karl Henrik
-            #dC_da = dC_dz @ W # dC_dz og W fra laget "over" 
+            dC_da = dC_dz @ W.T 
             
-        #print('np.shape(dC_da)')
-        #print(np.shape(dC_da))
             
-        dC_dz = dC_da*activation_der(z) # Her blir det noe krøll med dimensjonene. 
-        #dC_dW = np.outer(dC_dz,layer_input)
-        dC_dW = layer_input.T @ dC_dz # tips fra Karl Henrik: samme som å gjøre ytreproduktet,bare at vi legger sammen svaret fra alle n ytreproduktene.
-        dC_db = dC_dz #denne skal bare ganges med 1
-        #men sannsynligvis skal den jo egentlig ganges med en vektor av samme lengde som b, men som har 1 i alle elementene?
-        dC_db = np.sum(dC_dz, axis=0) #Tips fra Karl Henrik 
+        dC_dz = dC_da*activation_der(z) 
+        dC_dW = layer_input.T @ dC_dz 
+        dC_db = np.sum(dC_dz, axis=0)  
        
         layer_grads[i] = (dC_dW, dC_db)
     return layer_grads
-"""
-def my_cost(layers, activation_funcs, inputs, target):
-    pred = sivNN.feed_forward_batch(inputs, layers, activation_funcs)
-    return sivNN.cross_entropy(pred, target)
-cheating = grad(my_cost, 0)
-"""
+
 def train_network(
     inputs, layers, layers_prev, activation_funcs, target, threshold, learning_rate=0.1, gamma = 0.0001, epochs=10000
 ):
